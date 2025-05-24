@@ -1,0 +1,6 @@
+*.o
+*.pdf
+
+# Exécutables
+./bigInt/bigInt
+./homomorphic_encryption/client
