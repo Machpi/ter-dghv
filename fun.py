@@ -38,8 +38,8 @@ def handle_keys():
 def get_result_name(action):
   name1 = IMAGE1
   name2 = IMAGE2
-  if action == "invert":
-    return f"{name1}_invert.enc"
+  if action in ["invert", "compress"]:
+    return f"{name1}_{action}.enc"
   else :
     return f"{name1}+{name2}_{action}.enc"
   
@@ -67,7 +67,8 @@ if __name__ == "__main__":
     ["invert", encrypted_img1],
     ["add", encrypted_img1, encrypted_img2],
     ["xor", encrypted_img1, encrypted_img2],
-    ["multiply", encrypted_img1, encrypted_img2]
+    ["multiply", encrypted_img1, encrypted_img2],
+    ["compress", encrypted_img1]
   ]
   
   for transform in transformations:
