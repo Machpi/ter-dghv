@@ -11,7 +11,7 @@ DISPLAY_PATH = "./image_display/display.py"
 SK_PATH = "sk.json"
 PK_PATH = "pk.json"
 
-IMAGE1 = "square.txt"
+IMAGE1 = "squares.txt"
 IMAGE2 = "cross.txt"
 
 def run_command(command):
@@ -38,7 +38,7 @@ def handle_keys():
 def get_result_name(action):
   name1 = IMAGE1
   name2 = IMAGE2
-  if action in ["invert", "compress"]:
+  if action in ["invert", "compress", "compress_black"]:
     return f"{name1}_{action}.enc"
   else :
     return f"{name1}+{name2}_{action}.enc"
@@ -68,7 +68,8 @@ if __name__ == "__main__":
     ["add", encrypted_img1, encrypted_img2],
     ["xor", encrypted_img1, encrypted_img2],
     ["multiply", encrypted_img1, encrypted_img2],
-    ["compress", encrypted_img1]
+    ["compress", encrypted_img1],
+    ["compress_black", encrypted_img1]
   ]
   
   for transform in transformations:

@@ -62,6 +62,13 @@ def compress(a,b,c,d):
     or1 = or_h(cond1, cond2)
     return or_h(or1, cond3)
 
+def compress_black(a,b,c,d):
+    pre1 = (a*b)
+    pre2 = (c*d)
+    or1 = or_h(pre1*c, pre1*d)
+    or2 = or_h(pre2*a, pre2*b)
+    return or_h(or1, or2) 
+
 def compress_function(img):
     new_img = [[str(0) for _ in range(16)] for _ in range(16)]
     for i in range(8):
@@ -71,7 +78,18 @@ def compress_function(img):
             new_img[2*i+1][2*j] = str(compressed)
             new_img[2*i][2*j+1] = str(compressed)
             new_img[2*i+1][2*j+1] = str(compressed)
-    return new_img          
+    return new_img
+
+def compress_black_function(img):
+    new_img = [[str(0) for _ in range(16)] for _ in range(16)]
+    for i in range(8):
+        for j in range(8):
+            compressed = compress_black(int(img[2*i][2*j]), int(img[2*i+1][2*j]), int(img[2*i][2*j+1]), int(img[2*i+1][2*j+1]))
+            new_img[2*i][2*j] = str(compressed)
+            new_img[2*i+1][2*j] = str(compressed)
+            new_img[2*i][2*j+1] = str(compressed)
+            new_img[2*i+1][2*j+1] = str(compressed)
+    return new_img
 
 def load_encrypted_image(encrypted_filename):
     encrypted_image = [[None for _ in range(16)] for _ in range(16)]
@@ -135,15 +153,24 @@ def compress_image(image_filename):
     with open(output_filename, "w") as f:
         for row in compressed_image:
             f.write("\n".join(row) + "\n")
+            
+def compress_black_image(image_filename):
+    image = load_encrypted_image(image_filename)
+    compressed_image = compress_black_function(image)
+    output_filename = image_filename.replace(".enc", "_compress_black.enc")
+    with open(output_filename, "w") as f:
+        for row in compressed_image:
+            f.write("\n".join(row) + "\n")
+    
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python3 server.py <invert | compress | add | xor | multiply> <img1> [img2]")
+        print("Usage: python3 server.py <invert | compress | compress_black | add | xor | multiply> <img1> [img2]")
         sys.exit(1)
 
     action = sys.argv[1]
-    if action not in ["invert", "compress", "add", "xor", "multiply"]:
-        print("Usage: python3 server.py <invert | compress | add | xor | multiply> <img1> [img2]")
+    if action not in ["invert", "compress", "compress_black", "add", "xor", "multiply"]:
+        print("Usage: python3 server.py <invert | compress | compress_black | add | xor | multiply> <img1> [img2]")
         sys.exit(1)
     img1 = sys.argv[2]
     img2 = None
@@ -153,6 +180,8 @@ if __name__ == "__main__":
         invert_image(img1)
     if action == "compress":
         compress_image(img1)
+    if action == "compress_black":
+        compress_black_image(img1)
     if action == "add":
         add_images(img1, img2)
     elif action == "xor":
