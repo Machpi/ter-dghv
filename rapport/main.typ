@@ -21,11 +21,17 @@
 
 Un schéma de chiffrement complètement homomorphe garantit que pour $n$ clairs $m_1, ..., m_n$, leurs chiffrés respectifs $c_1, ..., c_n$ et une fonction f, $"Decrypt"_("SK")(f(c_1, ..., c_n)) = f(m_1, ..., m_n)$.\
 
-Un tel schéma peut servir à construire des protocoles de calcul distribué, où les données sont chiffrées et envoyées à un serveur qui exécute la fonction f sur les données chiffrées, sans jamais connaître les données elles-mêmes.\
-
 Notre projet consiste en l'étude et en l'implémentation du schéma de chiffrement complètement homomorphe de van Dijk, Gentry, Halevi et Vaikuntanathan (DGHV).\
 Le schéma DGHV est l'extension d'un schéma dit _somewhat homomorphic_ :\
 À ne pas confondre avec un schéma partiellement homomorphe comme le RSA (pour la multiplication) ou le cryptosystème de Paillier (pour l'addition), un schéma _somewhat homomorphic_ est un schéma qui permet d'effectuer un nombre limité d'opérations sur les données chiffrées, mais pas de manière illimitée.\
+
+Un tel schéma peut servir à construire des protocoles de calcul distribué,
+où les données sont chiffrées et envoyées à un serveur qui exécute la fonction $f$
+sur les données chiffrées, sans jamais connaître les données elles-mêmes.\
+
+#show link: underline
+Le code est disponible sur #link("https://github.com/Machpi/ter-dghv/tree/main")[GitHub]
+
 
 = BigInt
 
@@ -101,8 +107,7 @@ L'implémentation est évidemment moins efficace que celle de bibliothèques sp�
 
 Nous utiliserons dans la suite la bibliothèque GNU Multiple Precision Arithmetic Library (GMP) pour les calculs sur des entiers de taille arbitraire, car elle est bien plus efficace que notre implémentation.
 
-
-= Chiffrement client
+= Schéma _somewhat homomorphic_ : opérations côté client
 
 == Théorie
 
@@ -116,13 +121,37 @@ Plus précisément, on se permet un nombre polynomial en $lambda$ (paramètre de
 On utilise comme expliqué précédemment la bibliothèque GMP pour effectuer les calculs sur des entiers de taille arbitraire.\
 
 
-= Opérations côté serveur
+= Schéma _somewhat homomorphic_ : opérations côté serveur
 
 Le serveur reçoit des données chiffrées et effectue des opérations sur ces données.\
 
 == Théorie
 
-== Implémentation
+=== Opérations de base
+
+Étant en arithmétique modulo 2, les opérations de base sont l'addition et la multiplication dans
+$ZZ\/2ZZ$. On peut donc établir la correspondance suivante :
+
+Supposons $a,b in {0,1}$,\
+$D(E(a) * E(b)) = a and b$\
+$D(E(a) + E(b)) = a xor b$\
+En effet, il faut faire attention : dans $ZZ\/2ZZ$, $overline(1)+overline(1) = overline(0)$
+
+Cependant, on peut construire l'opération $or$ à partir de $and$ et $xor$ :\
+$a or b = a xor b xor (a and b)$\
+On remarque déjà que l'opération $or$ sera plus aussi coûteuse que le $and$, et que l'on devra favoriser l'utilisation du $xor$.
+
+=== Circuits
+
+Un circuit peut être vu comme un DAG où les nœuds sont des opérations de base,
+et les arêtes sont des entrées et sorties de ces opérations.\
+
+== Implémentation : exemple des images
+
+Nous avons implémenté dans le fichier _server.py_ un exemple de serveur
+qui reçoit des images chiffrées et effectue des opérations de base sur ces images.
+
+
 
 = Chiffrement complètement homomorphe
 
