@@ -124,11 +124,9 @@ Le serveur reçoit des données chiffrées et effectue des opérations sur ces d
 
 == Implémentation
 
-= Ce qu'il reste en théorie
+= Chiffrement complètement homomorphe
 
-== Chiffrement complètement homomorphe
-
-Le schéma DGHV construit un schéma de chiffrement complètement homomorphe à partir d'un schéma _somewhat homomorphic_ en ajoutant une étape de bootstrapping
+Le schéma DGHV construit un schéma de chiffrement complètement homomorphe à partir du schéma initial _somewhat homomorphic_ en ajoutant une étape de bootstrapping
 
 == Déchiffrement par approximation
 

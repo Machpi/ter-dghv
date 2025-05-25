@@ -1,5 +1,8 @@
 *.o
 *.pdf
+*.json
+*.enc
+*.dec
 
 # Exécutables
 bigInt/bigInt

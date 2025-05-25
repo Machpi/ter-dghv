@@ -66,10 +66,45 @@ def load_encrypted_image(encrypted_filename):
 def invert_image(image_filename):
     image = load_encrypted_image(image_filename)
     inverted_image = [str(not_h(int(image[i][j]))) for i in range(16) for j in range(16)]
-    output_filename = image_filename.replace(".enc", "_inverted.enc")
+    output_filename = image_filename.replace(".enc", "_invert.enc")
     with open(output_filename, "w") as f:
         f.write("\n".join(inverted_image))
-    print(f"Image inversée sauvegardée dans {output_filename}")
+    
+def add_images(image1_filename, image2_filename):
+    image1 = load_encrypted_image(image1_filename)
+    image2 = load_encrypted_image(image2_filename)
+    
+    added_image = [[str(or_h(int(image1[i][j]), int(image2[i][j]))) for j in range(16)] for i in range(16)]
+    base1 = image1_filename[:-4]
+    base2 = image2_filename[:-4]
+    output_filename = f"{base1}+{base2}_add.enc"
+    with open(output_filename, "w") as f:
+        for row in added_image:
+            f.write("\n".join(row) + "\n")
+    
+def xor_images(image1_filename, image2_filename):
+    image1 = load_encrypted_image(image1_filename)
+    image2 = load_encrypted_image(image2_filename)
+    
+    xor_image = [[str(xor_h(int(image1[i][j]), int(image2[i][j]))) for j in range(16)] for i in range(16)]
+    base1 = image1_filename[:-4]
+    base2 = image2_filename[:-4]
+    output_filename = f"{base1}+{base2}_xor.enc"
+    with open(output_filename, "w") as f:
+        for row in xor_image:
+            f.write("\n".join(row) + "\n")
+            
+def multiply_images(image1_filename, image2_filename):
+    image1 = load_encrypted_image(image1_filename)
+    image2 = load_encrypted_image(image2_filename)
+    
+    multiplied_image = [[str(and_h(int(image1[i][j]), int(image2[i][j]))) for j in range(16)] for i in range(16)]
+    base1 = image1_filename[:-4]
+    base2 = image2_filename[:-4]
+    output_filename = f"{base1}+{base2}_multiply.enc"
+    with open(output_filename, "w") as f:
+        for row in multiplied_image:
+            f.write("\n".join(row) + "\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -81,13 +116,16 @@ if __name__ == "__main__":
         print("Usage: python3 server.py <invert | compress | add | xor | multiply> <img1> [img2]")
         sys.exit(1)
     img1 = sys.argv[2]
+    img2 = None
+    if len(sys.argv) > 3:
+        img2 = sys.argv[3]
     if action == "invert":
         invert_image(img1)
     # if action == "compress":
     #     compress_image(img1)
-    # if action == "add":
-    #     add_image(img1, img2)
-    # elif action == "xor":
-    #     xor_image(img1, img2)
-    # elif action == "multiply":
-    #     multiply_image(img1, img2)
+    if action == "add":
+        add_images(img1, img2)
+    elif action == "xor":
+        xor_images(img1, img2)
+    elif action == "multiply":
+        multiply_images(img1, img2)
