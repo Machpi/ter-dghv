@@ -144,8 +144,6 @@ Remarque : le déchiffrement est le même que pour le schéma basique. Nous l'av
 
 À ce stade, on peut déjà effectuer un bootstrapping en ayant un circuit binaire comme abordé en cours, mais l'article conclut qu'un tel circuit est trop profond et génère des chiffrés avec des bruits trop importants.
 
-Expérimentalement, nous avons constaté qu'au bout de 52 opérations $and$ ou $or$, le bruit était trop important pour pouvoir déchiffrer.
-
 == Implémentation
 
 On utilise comme expliqué précédemment la bibliothèque GMP pour effectuer les calculs sur des entiers de taille arbitraire.\
@@ -157,6 +155,8 @@ Il est important de noter que nous utilisons des valeurs très petites comparée
   image("img/paramVals.png"),
   caption: "Valeurs de paramètres recommandées pour le schéma DGHV",
 )
+
+Pour nos valeurs (proches du niveau _toy_), nous avons constaté qu'au bout de 52 opérations $and$ ou $or$, le bruit était trop important pour pouvoir déchiffrer.
 
 = Schéma _somewhat homomorphic_ : opérations côté serveur
 
@@ -273,9 +273,9 @@ Le schéma DGHV construit un schéma de chiffrement complètement homomorphe à 
 
 == Déchiffrement par approximation
 
-On a 3 paramètres : $kappa, theta, Theta$ qui sont des paramètres de sécurité. $kappa = (gamma*eta)/(rho′)$, taille de la clé secrète, $theta = lambda$ nombre d’éléments des ensembles, $Theta = omega(kappa*log lambda)$ nombre d’indice dans la clé privée.
+On a 3 paramètres : $kappa, theta, Theta$ qui sont des paramètres de sécurité. $kappa = (gamma*eta)/(rho')$, taille de la clé secrète, $theta = lambda$ nombre d'éléments des ensembles, $Theta = omega(kappa*log lambda)$ nombre d'indice dans la clé privée.
 
-On ajoute un vecteur y de $Theta$ valeurs à la clé publique dont les valeurs sont des réels compris entre 0 et 2 exclu avec une précision de $kappa$ bits après la virgule tel qu’il existe un sous-ensemble $S subset {1,...,Θ}$ de taille $theta$ tel que $sum_(i in S) y_i approx 1/p (mod 2).$
+On ajoute un vecteur y de $Theta$ valeurs à la clé publique dont les valeurs sont des réels compris entre 0 et 2 exclu avec une précision de $kappa$ bits après la virgule tel qu'il existe un sous-ensemble $S subset {1,...,Θ}$ de taille $theta$ tel que $sum_(i in S) y_i approx 1/p (mod 2).$
 
 === Génération de clé
 On veut simplifier le schéma de déchiffrement en une opération plus simple, on veut une somme pondérée.
@@ -283,10 +283,16 @@ Pour cela, on génère une clé secrète $sk^* = p$, et une clé publique $pk^*$
 
 On choisit aléatoirement des entiers $u_i in Z inter [theta, 2^(kappa+1))$, avec $i = 1, …, Theta$, tel que la $sum_(i in S) u_i = x_p (mod 2^(kappa+1)), y_i = u_i/2^k$ et le vecteur $arrow(y) = {y_1, …, y_Theta}$ chaque $y_i$ est un nombre positif inférieur à 2 avec une précision de $kappa$ bits après la virgule. 
 
-Le vecteur $arrow(y)$ permet de simplifier la division en faisant une somme. Et la $[sum_(i in S) y_i]_2 = (1/p) - |delta_p|$ tel que $| delta_p < 2^(-kappa)|$. La sortie est la clé secrète = $arrow(s)$ et la clé publique pk = $(pk^*, arrow(y))$. Cela permet d’approximer la division $(c^*)/p$ avec une faible erreur.
+Le vecteur $arrow(y)$ permet de simplifier la division en faisant une somme. Et la $[sum_(i in S) y_i]_2 = (1/p) - |delta_p|$ tel que $| delta_p < 2^(-kappa)|$. La sortie est la clé secrète = $arrow(s)$ et la clé publique pk = $(pk^*, arrow(y))$. Cela permet d'approximer la division $(c^*)/p$ avec une faible erreur.
 
 === Déchiffrement 
-On simplifie la division par une somme pondérée des $z_i$, on utilise le vecteur $arrow(s)$ pour ne combiner que les bons $z_i$ et on retrouve le message $m = [c^* - floor.l sum_i s_i * z_i ceil.r]_2$. Cela fonctionne sous 2 conditions, il faut que le résultat de la $sum(s_i*z_i)$ soit 1/4 d’un nombre entier et seulement $theta$ bits des $s_1, …, s_Theta$ ne soit pas des 0.  
+On simplifie la division par une somme pondérée des $z_i$, on utilise le vecteur $arrow(s)$ pour ne combiner que les bons $z_i$ et on retrouve le message $m = [c^* - floor.l sum_i s_i * z_i ceil.r]_2$. Cela fonctionne sous 2 conditions, il faut que le résultat de la $sum(s_i*z_i)$ soit 1/4 d'un nombre entier et seulement $theta$ bits des $s_1, …, s_Theta$ ne soit pas des 0.  
 
 == Bootstrapping
 
+
+= Conclusion
+
+Nous avons partiellement implémenté le schéma DGHV, assez pour en comprendre les principe et en dériver une application simple. 
+Cela nous a permis de nous familiariser avec les schémas de chiffrement homomorphe et d'en comprendre l'utiliter et les limitations.\
+Nous avons au passage implémenté une petite biliothèque de calcul sur des entiers de taille arbitraire, ce qui nous a permis de mieux comprendre les algorithmes mis en œuvre, même si la bibliothèque GMP est immensément plus efficace.
