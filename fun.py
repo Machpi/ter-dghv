@@ -11,7 +11,7 @@ DISPLAY_PATH = "./image_display/display.py"
 SK_PATH = "sk.json"
 PK_PATH = "pk.json"
 
-IMAGE1 = "squares.txt"
+IMAGE1 = "squaremix.txt"
 IMAGE2 = "cross.txt"
 
 def run_command(command):
@@ -71,6 +71,11 @@ if __name__ == "__main__":
     ["compress", encrypted_img1],
     ["compress_black", encrypted_img1]
   ]
+  
+  # Show base images
+  print("Affichage des images de base...")
+  run_command(["python3", DISPLAY_PATH, os.path.join(IMAGE_DIR, IMAGE1)])
+  run_command(["python3", DISPLAY_PATH, os.path.join(IMAGE_DIR, IMAGE2)])
   
   for transform in transformations:
     action = transform[0]

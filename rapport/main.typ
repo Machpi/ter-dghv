@@ -1,6 +1,8 @@
 #import "@preview/ilm:1.4.1" : *
 #import "@preview/lovelace:0.3.0" : *
+#import "@preview/cetz:0.3.2": draw, vector
 #import "@preview/circuiteria:0.2.0" : *
+#import "@preview/tablex:0.0.9" : *
 
 #set text(lang: "fr")
 
@@ -124,8 +126,10 @@ Cela nécessite d'utiliser le flag _-lgmp_ lors de la compilation pour lier la b
 
 Il est important de noter que nous utilisons des valeurs très petites comparées à celles recommandées @paramVals pour le schéma DGHV : 
 
-#image("paramVals.png")
-
+#figure(
+  image("img/paramVals.png"),
+  caption: "Valeurs de paramètres recommandées pour le schéma DGHV",
+)
 
 = Schéma _somewhat homomorphic_ : opérations côté serveur
 
@@ -143,9 +147,13 @@ $D(E(a) * E(b)) = a and b$\
 $D(E(a) + E(b)) = a xor b$\
 En effet, il faut faire attention : dans $ZZ\/2ZZ$, $overline(1)+overline(1) = overline(0)$
 
-Cependant, on peut construire l'opération $or$ à partir de $and$ et $xor$ :\
+- Cependant, on peut construire l'opération $or$ à partir de $and$ et $xor$ :\
 $a or b = a xor b xor (a and b)$\
 On remarque déjà que l'opération $or$ sera plus aussi coûteuse que le $and$, et que l'on devra favoriser l'utilisation du $xor$.
+
+- On peut également construire l'opération $not$ à partir de $xor$
+$not a = a xor 1$\
+Cependant, cela implique de pouvoir chiffrer un 1 "à la volée", c'est-à-dire sans disposer de la clé privée. On expliquera plus loin comment nous l'avons fait.
 
 === Circuits
 
@@ -156,6 +164,68 @@ et les arêtes sont des entrées et sorties de ces opérations.\
 
 Nous avons implémenté dans le fichier _server.py_ un exemple de serveur
 qui reçoit des images chiffrées et effectue des opérations de base sur ces images.
+
+Nous avons vu précédemment comment nous avons encodé les opérations binaires de base en ne partant que de l'addition et de la multiplication dans $ZZ\/2ZZ$.\
+Pour notre exemple, nous avons également implémenté l'opération de compression.
+
+#grid(
+  columns:3,
+  align:center,
+  figure(
+    image("img/squaremix.png", width: 80%),
+    caption: "Image squaremix.png",
+  ),
+  
+  figure(
+    image("img/squaremixcompress.png", width: 80%),
+    caption: "Image compressée à égalité blanche",
+  ),
+
+  figure(
+    image("img/squaremixcompressblack.png", width: 80%),
+    caption: "Image compressée à égalité noire",
+  ),
+)
+
+Pour ce faire, nous avons eu besoin d'implémenter les opérations de compression, qui prennent en entrée 4 bits et en sortie 1 bit :
+
+#figure(
+  grid(
+    columns:2,
+    gutter:.5cm,
+    tablex(
+    columns: 5,
+    [], [00], [01], [10], [11],
+    [00], [0], [0], [0], [1],
+    [01], [0], [0], [1], [1],
+    [10], [0], [1], [1], [1],
+    [11], [1], [1], [1], [1],
+    ),
+    tablex(
+    columns: 5,
+    [], [00], [01], [10], [11],
+    [00], [0], [0], [0], [0],
+    [01], [0], [0], [0], [1],
+    [10], [0], [0], [1], [1],
+    [11], [0], [1], [1], [1],
+    )
+  ),
+  caption : "Tables de vérité de l'opération de compression à égalité blanche et noire",
+)
+
+Il faut rappeler que l'opération $and$ est plus coûteuse que l'opération $xor$, en plus de significativement augmenter la taille du chiffré. On souhaite donc, dans nos circuits, minimiser l'utilisation de $and$ et $or$ (que l'on a construit à partir d'un $and$), mais surtout minimiser leur imbrication.\
+
+
+#circuit({
+  gates.gate-or(
+    x:0,
+    y:0,
+    w:1,
+    h:1,
+
+  )
+
+})
 
 = Chiffrement complètement homomorphe
 
