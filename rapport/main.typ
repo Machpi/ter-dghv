@@ -1,6 +1,5 @@
 #import "@preview/ilm:1.4.1" : *
 #import "@preview/lovelace:0.3.0" : *
-#import "@preview/cetz:0.3.2": draw, vector
 #import "@preview/tablex:0.0.9" : *
 
 #set text(lang: "fr")
@@ -311,5 +310,5 @@ Dans les grandes lignes, l'article démontre qu'il est possible de décomposer l
 = Conclusion
 
 Nous avons partiellement implémenté le schéma DGHV, assez pour en comprendre les principe et en dériver une application simple. 
-Cela nous a permis de nous familiariser avec les schémas de chiffrement homomorphe et d'en comprendre l'utiliter et les limitations.\
+Cela nous a permis de nous familiariser avec les schémas de chiffrement homomorphe et d'en comprendre l'utilité et les limitations.\
 Nous avons au passage implémenté une petite biliothèque de calcul sur des entiers de taille arbitraire, ce qui nous a permis de mieux comprendre les algorithmes mis en œuvre, même si la bibliothèque GMP est immensément plus efficace.
