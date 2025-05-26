@@ -295,13 +295,13 @@ On remarque déjà que le nombre premier $p$ n'apparait plus explicitement dans 
 
 === Chiffrement
 
-Maintenant, quand on veut chiffrer un message $m$, en plus de le chiffré avec la clé publique comme vu précédemment, on va calculer un vecteur $arrow(z)$ de taille $Theta$ tel que :\
+Maintenant, quand on veut chiffrer un message $m$, en plus de calculer son chiffré $c^*$ avec la clé publique comme vu précédemment, on va calculer un vecteur $arrow(z)$ de taille $Theta$ tel que :\
 $forall i in [|1, Theta|], z_i = c^* dot y_i mod 2$, en conservant uniquement $ceil(log theta) + 3$ bits de précision après la virgule.
 Plus précisément, l'opération mod 2 ci-dessus conserve la partie décimale, mais applique le modulo 2 à la partie entière.\
 On a donc $forall i in [|1, Theta|], z_i in [0,2[$
 
 === Déchiffrement 
-On simplifie la division $c^* /p$ par une somme pondérée des $z_i$, on utilise la clé secrète $arrow(s)$ pour ne combiner que les bons $z_i$ et on retrouve le message $m = [c^* - floor.l sum_i s_i * z_i ceil.r]_2$.\
+On simplifie la division $c^* /p$ par une somme pondérée des $z_i$, on utilise la clé secrète $arrow(s)$ pour ne combiner que les bons $z_i$ et on retrouve le message $m = c^* - floor.l sum_i s_i * z_i ceil.r mod 2$.\
 L'article démontre que pour des bonnes valeurs de $kappa, theta, "et" Theta$, la différence entre la valeur réelle et la valeur déchiffrée avant l'arrondi est inférieure à $1/4$, ce qui assure la validité du message déchiffré.\
 
 === Bootstrapping
