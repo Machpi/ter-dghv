@@ -115,10 +115,10 @@ Nous utiliserons dans la suite la bibliothèque GNU Multiple Precision Arithmeti
 
 Contrairement à d'autres schémas qui reposent sur des problèmes de factorisation, le schéma DGHV repose sur le problème du PGCD Approché (AGCD).\
 Le problème du PGCD approché, étant donné des $x_i = q_i p + r_i$ (avec $p$, les $q_i$, $r_i$ secrets), de distinguer les $x_i$ d'une distribution aléatoire uniforme.\
-Plus précisément, on se permet un nombre polynomial en $lambda$ (paramètre de sécurité) de $x_i$ où $p$ est de taille $tilde(cal(O))(lambda^2)$, les $q_i$ sont de taille $tilde(cal(O))(lambda^3)$ et les $r_i$ sont de taille $cal(O)(lambda)$.\
+Plus précisément, on se permet un nombre polynomial en $lambda$ (paramètre de sécurité) de $x_i$ où $p$ est de taille $eta = tilde(cal(O))(lambda^2)$, les $q_i$ sont de taille $tilde(cal(O))(lambda^3)$ et les $r_i$ sont de taille $rho = cal(O)(lambda)$.\
 (Où $tilde(cal(O))(lambda^2) = cal(O)(lambda^2log^k lambda)$ pour un certain $k$)\
 
-Le problème que l'on va rencontrer est la taille des chiffrés, qui augmente rapidement avec le nombre d'opérations effectuées :\
+Le problème que l'on va rencontrer est la taille du bruit des chiffrés, qui augmente rapidement avec le nombre d'opérations effectuées :\
 - L'addition de deux chiffrés de taille $n$ donne un chiffré de taille $n + 1$
 - La multiplication de deux chiffrés de taille $n$ donne un chiffré de taille $2n + 1$\
 On va donc vouloir faire une opération dite _bootstrapping_, qui consiste à "ré-évaluer" un chiffré pour réinitialiser son bruit, afin de pouvoir répéter des opérations.
@@ -127,7 +127,7 @@ On va donc vouloir faire une opération dite _bootstrapping_, qui consiste à "r
 
 Le schéma DGHV basique dont nous avons vu le principe en cours est le suivant :\
 - Choisir $p$ comme clé privée
-- Chiffrement : choisir $q$ et $r$ aléatoires, et $E(b) = q p + r + b$
+- Chiffrement : choisir $q$ et $r$ aléatoires, et $E(m) = m + q p + r$
 - Déchiffrement : $D(c) = c mod 2 mod p$
 Ce schéma permet les additions et les multiplications, mais en quantité limitée, car la taille des chiffrés augmente rapidement.\
 
@@ -137,7 +137,7 @@ Le schéma DGHV initial permet de créer un chiffré sans avoir à connaître la
 - La clé privée est toujours la même, $p$
 - Pour générer la clé publique, on va prendre $tau + 1$ échantillons de la forme $x_i = p q_i + r_i$ avec $forall i in [|0, tau|], x_0 >= x_i$ Intuitivement, c'est comme si l'on avait $tau + 1$ chiffrés de 0. Il faut également que $x_0$ soit pair, et $x_0 mod p$ soit impair.
 - #[Chiffrement : on choisit un $r$ aléatoire, et un sous-ensemble $S$ de ces $x_i$ ($i in [|1, tau|]$), et\
-$E(b) = m + 2r + 2 limits(sum)_(i in S)x_i mod x_0$]
+$E(m) = m + 2r + 2 limits(sum)_(i in S)x_i mod x_0$]
 - Déchiffrement : $D(c) = c mod 2 mod p$  
 
 Remarque : le déchiffrement est le même que pour le schéma basique. Nous l'avons également constaté lors de nos tests, mais ces deux schémas sont "compatibles".
@@ -178,14 +178,14 @@ En effet, il faut faire attention : dans $ZZ\/2ZZ$, $overline(1)+overline(1) = o
 $a or b = a xor b xor (a and b)$\
 On remarque déjà que l'opération $or$ sera plus aussi coûteuse que le $and$, et que l'on devra favoriser l'utilisation du $xor$.
 
-- On peut également construire l'opération $not$ à partir de $xor$
+- On peut également construire l'opération $not$ à partir de $xor$ :
 $not a = a xor 1$\
 Cependant, cela implique de pouvoir chiffrer un 1 "à la volée", c'est-à-dire sans disposer de la clé privée. C'est ce que nous avons vu dans la partie précédente.
 
-=== Circuits
+=== Circuits et calculs
 
-Un circuit peut être vu comme un DAG où les nœuds sont des opérations de base,
-et les arêtes sont des entrées et sorties de ces opérations.\
+Un circuit est une représentation d'une fonction booleénne sous forme de portes logiques connectées. Nous avons vu en TD que n'importe quelle fonction boolénne\ $f : (ZZ\/2ZZ)^n arrow.long ZZ\/2ZZ$ pouvait s'écrire comme un polynôme en $n$ variables et de degré au plus $n$. Or, il existe une équivalence formelle entr les circuits et les polynômes que nous ne détaillerons pas ici.\
+Ce qu'il faut retenir, c'est que dans le schéma actuel, les circuits sont en clair, c'est-à-dire que le serveur sait quelles opérations il effectue sur les données chiffrées. Il existe cependant des schémas de chiffrement homomorphe où le serveur n'a pas conscience des opérations qu'il effectue.
 
 == Implémentation : exemple des images
 

@@ -15,6 +15,10 @@ image_examples : Quelques images encodées sur 16x16 bits
 rapport : Fichier `.typ` du rapport
 
 ## Pour exécuter
+
+Dépendances :
+`libgmp3-dev` et `libjson-c-dev`
+
 Dans ./homomorphic_encryption :
 `make`
 
