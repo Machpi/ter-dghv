@@ -24,8 +24,8 @@
 Un schéma de chiffrement complètement homomorphe garantit que pour $n$ clairs $m_1, ..., m_n$, leurs chiffrés respectifs $c_1, ..., c_n$ et une fonction $f$ :\ $"Decrypt"_("sk")(f(c_1, ..., c_n)) = f(m_1, ..., m_n)$.\
 
 Notre projet consiste en l'étude et en l'implémentation du schéma de chiffrement complètement homomorphe de van Dijk, Gentry, Halevi et Vaikuntanathan (DGHV) @dghv.\
-Le schéma DGHV est l'extension d'un schéma dit _somewhat homomorphic_ :\
-À ne pas confondre avec un schéma partiellement homomorphe comme le RSA (pour la multiplication) ou le cryptosystème de Paillier (pour l'addition), un schéma _somewhat homomorphic_ est un schéma qui permet d'effectuer un nombre limité d'opérations sur les données chiffrées, mais pas de manière illimitée.\
+Le schéma DGHV est l'extension d'un schéma dit _somewhat homomorphic_.\
+À ne pas confondre avec un schéma partiellement homomorphe comme le RSA (pour la multiplication) ou le cryptosystème de Paillier (pour l'addition), un schéma _somewhat homomorphic_ est un schéma qui permet d'effectuer n'importe quelle opération sur les données chiffrées, mais pas de manière illimitée.\
 
 Un tel schéma peut servir à construire des protocoles de calcul distribué,
 où les données sont chiffrées et envoyées à un serveur qui exécute la fonction $f$
