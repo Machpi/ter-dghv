@@ -1,7 +1,6 @@
 #import "@preview/ilm:1.4.1" : *
 #import "@preview/lovelace:0.3.0" : *
 #import "@preview/cetz:0.3.2": draw, vector
-#import "@preview/circuiteria:0.2.0" : *
 #import "@preview/tablex:0.0.9" : *
 
 #set text(lang: "fr")
@@ -13,18 +12,18 @@
   abstract: [
     Année 2024—2025
   ],
+  figure-index: (enabled: true, title : "Figures"),
   bibliography: bibliography("refs.bib"),
-  figure-index: (enabled: true),
-  table-index: (enabled: true),
-  listing-index: (enabled: true),
+  table-index: (enabled: false),
+  listing-index: (enabled: false),
   chapter-pagebreak: true
 )
 
 = Sujet
 
-Un schéma de chiffrement complètement homomorphe garantit que pour $n$ clairs $m_1, ..., m_n$, leurs chiffrés respectifs $c_1, ..., c_n$ et une fonction $f$ :\ $"Decrypt"_("SK")(f(c_1, ..., c_n)) = f(m_1, ..., m_n)$.\
+Un schéma de chiffrement complètement homomorphe garantit que pour $n$ clairs $m_1, ..., m_n$, leurs chiffrés respectifs $c_1, ..., c_n$ et une fonction $f$ :\ $"Decrypt"_("sk")(f(c_1, ..., c_n)) = f(m_1, ..., m_n)$.\
 
-Notre projet consiste en l'étude et en l'implémentation du schéma de chiffrement complètement homomorphe de van Dijk, Gentry, Halevi et Vaikuntanathan (DGHV).\
+Notre projet consiste en l'étude et en l'implémentation du schéma de chiffrement complètement homomorphe de van Dijk, Gentry, Halevi et Vaikuntanathan (DGHV) @dghv.\
 Le schéma DGHV est l'extension d'un schéma dit _somewhat homomorphic_ :\
 À ne pas confondre avec un schéma partiellement homomorphe comme le RSA (pour la multiplication) ou le cryptosystème de Paillier (pour l'addition), un schéma _somewhat homomorphic_ est un schéma qui permet d'effectuer un nombre limité d'opérations sur les données chiffrées, mais pas de manière illimitée.\
 
@@ -153,7 +152,11 @@ On remarque déjà que l'opération $or$ sera plus aussi coûteuse que le $and$,
 
 - On peut également construire l'opération $not$ à partir de $xor$
 $not a = a xor 1$\
-Cependant, cela implique de pouvoir chiffrer un 1 "à la volée", c'est-à-dire sans disposer de la clé privée. On expliquera plus loin comment nous l'avons fait.
+Cependant, cela implique de pouvoir chiffrer un 1 "à la volée", c'est-à-dire sans disposer de la clé privée. Voyons comment faire cela :
+
+=== Chiffrement à clé publique
+
+
 
 === Circuits
 
@@ -215,18 +218,21 @@ Pour ce faire, nous avons eu besoin d'implémenter les opérations de compressio
 
 Il faut rappeler que l'opération $and$ est plus coûteuse que l'opération $xor$, en plus de significativement augmenter la taille du chiffré. On souhaite donc, dans nos circuits, minimiser l'utilisation de $and$ et $or$ (que l'on a construit à partir d'un $and$), mais surtout minimiser leur imbrication.\
 
+Nous avons donc proposé ce circuit pour l'opération de compression à égalité blanche :
 
-#circuit({
-  gates.gate-or(
-    x:0,
-    y:0,
-    w:1,
-    h:1,
-
+#grid(
+  columns:2,
+  gutter:.5cm,
+  figure(
+    image("img/circuit1.png", width: 60%),
+    caption: "Circuit pour l'opération de compression à égalité blanche",
+  ),
+  figure(
+    image("img/circuitcode.png", width: 58%),
+    caption: "Code Python correspondant aux deux circuits",
   )
-
-})
-
+)
+  
 = Chiffrement complètement homomorphe
 
 Le schéma DGHV construit un schéma de chiffrement complètement homomorphe à partir du schéma initial _somewhat homomorphic_ en ajoutant une étape de bootstrapping
