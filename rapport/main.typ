@@ -262,7 +262,6 @@ Nous avons donc proposé ce circuit pour l'opération de compression à égalit�
   )
   
 )
-
   
 = Chiffrement complètement homomorphe
 
