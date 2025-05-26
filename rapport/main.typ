@@ -268,7 +268,25 @@ Nous avons donc proposé ce circuit pour l'opération de compression à égalit�
 
 Le schéma DGHV construit un schéma de chiffrement complètement homomorphe à partir du schéma initial _somewhat homomorphic_ en ajoutant une étape de bootstrapping
 
+#let sk = $"sk"$
+#let pk = $"pk"$
+
 == Déchiffrement par approximation
+
+On a 3 paramètres : $kappa, theta, Theta$ qui sont des paramètres de sécurité. $kappa = (gamma*eta)/(rho′)$, taille de la clé secrète, $theta = lambda$ nombre d’éléments des ensembles, $Theta = omega(kappa*log lambda)$ nombre d’indice dans la clé privée.
+
+On ajoute un vecteur y de $Theta$ valeurs à la clé publique dont les valeurs sont des réels compris entre 0 et 2 exclu avec une précision de $kappa$ bits après la virgule tel qu’il existe un sous-ensemble $S subset {1,...,Θ}$ de taille $theta$ tel que $sum_(i in S) y_i approx 1/p (mod 2).$
+
+=== Génération de clé
+On veut simplifier le schéma de déchiffrement en une opération plus simple, on veut une somme pondérée.
+Pour cela, on génère une clé secrète $sk^* = p$, et une clé publique $pk^*$. $x_p = floor.l 2^κ/p ceil.r$, on choisit aléatoirement un vecteur $arrow(s)$ de $Theta$ bits avec un poids de Hamming de $theta$ (nombre de 1), le vecteur de la clé secrète $arrow(s) = {s_1, …, s_Theta}, S = {i : s_i = 1}$, cela indique les $y_i$ à 1.
+
+On choisit aléatoirement des entiers $u_i in Z inter [theta, 2^(kappa+1))$, avec $i = 1, …, Theta$, tel que la $sum_(i in S) u_i = x_p (mod 2^(kappa+1)), y_i = u_i/2^k$ et le vecteur $arrow(y) = {y_1, …, y_Theta}$ chaque $y_i$ est un nombre positif inférieur à 2 avec une précision de $kappa$ bits après la virgule. 
+
+Le vecteur $arrow(y)$ permet de simplifier la division en faisant une somme. Et la $[sum_(i in S) y_i]_2 = (1/p) - |delta_p|$ tel que $| delta_p < 2^(-kappa)|$. La sortie est la clé secrète = $arrow(s)$ et la clé publique pk = $(pk^*, arrow(y))$. Cela permet d’approximer la division $(c^*)/p$ avec une faible erreur.
+
+=== Déchiffrement 
+On simplifie la division par une somme pondérée des $z_i$, on utilise le vecteur $arrow(s)$ pour ne combiner que les bons $z_i$ et on retrouve le message $m = [c^* - floor.l sum_i s_i * z_i ceil.r]_2$. Cela fonctionne sous 2 conditions, il faut que le résultat de la $sum(s_i*z_i)$ soit 1/4 d’un nombre entier et seulement $theta$ bits des $s_1, …, s_Theta$ ne soit pas des 0.  
 
 == Bootstrapping
 
