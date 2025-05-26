@@ -8,7 +8,7 @@
 
 #define ETA 1024           // η : taille en bits de la clé secrète p
 #define RHO 16             // ρ : taille en bits du bruit r
-#define GAMMA 8192         // γ : taille en bits des xi dans la clé publique
+#define GAMMA 8192         // γ : taille en bits du bruit q
 #define RHOP (RHO + 16)    // ρ' : bruit étendu pour chiffrement
 #define TAU (GAMMA + 128)  // τ : nombre d'éléments xi dans la clé publique
 

@@ -115,7 +115,7 @@ Nous utiliserons dans la suite la bibliothèque GNU Multiple Precision Arithmeti
 
 Contrairement à d'autres schémas qui reposent sur des problèmes de factorisation, le schéma DGHV repose sur le problème du PGCD Approché (AGCD).\
 Le problème du PGCD approché, étant donné des $x_i = q_i p + r_i$ (avec $p$, les $q_i$, $r_i$ secrets), de distinguer les $x_i$ d'une distribution aléatoire uniforme.\
-Plus précisément, on se permet un nombre polynomial en $lambda$ (paramètre de sécurité) de $x_i$ où $p$ est de taille $eta = tilde(cal(O))(lambda^2)$, les $q_i$ sont de taille $tilde(cal(O))(lambda^3)$ et les $r_i$ sont de taille $rho = cal(O)(lambda)$.\
+Plus précisément, on se permet un nombre polynomial en $lambda$ (paramètre de sécurité) de $x_i$ où $p$ est de taille $eta = tilde(cal(O))(lambda^2)$, les $q_i$ sont de taille $gamma = tilde(cal(O))(lambda^3)$ et les $r_i$ sont de taille $rho = cal(O)(lambda)$.\
 (Où $tilde(cal(O))(lambda^2) = cal(O)(lambda^2log^k lambda)$ pour un certain $k$)\
 
 Le problème que l'on va rencontrer est la taille du bruit des chiffrés, qui augmente rapidement avec le nombre d'opérations effectuées :\
@@ -127,7 +127,7 @@ On va donc vouloir faire une opération dite _bootstrapping_, qui consiste à "r
 
 Le schéma DGHV basique dont nous avons vu le principe en cours est le suivant :\
 - Choisir $p$ comme clé privée
-- Chiffrement : choisir $q$ et $r$ aléatoires, et $E(m) = m + q p + r$
+- Chiffrement : choisir $q$ et $r$ aléatoires, et $E(m) = m + q p + 2r$
 - Déchiffrement : $D(c) = c mod 2 mod p$
 Ce schéma permet les additions et les multiplications, mais en quantité limitée, car la taille des chiffrés augmente rapidement.\
 
@@ -135,10 +135,12 @@ Ce schéma permet les additions et les multiplications, mais en quantité limit�
 
 Le schéma DGHV initial permet de créer un chiffré sans avoir à connaître la clé privée. Cela peut sembler inutile, mais on verra une application dans la suite.\
 - La clé privée est toujours la même, $p$
-- Pour générer la clé publique, on va prendre $tau + 1$ échantillons de la forme $x_i = p q_i + r_i$ avec $forall i in [|0, tau|], x_0 >= x_i$ Intuitivement, c'est comme si l'on avait $tau + 1$ chiffrés de 0. Il faut également que $x_0$ soit pair, et $x_0 mod p$ soit impair.
+- Pour générer la clé publique, on va prendre $tau + 1$ échantillons de la forme $x_i = p q_i + r_i$ avec $forall i in [|0, tau|], x_0 >= x_i$. Il faut également que $x_0$ soit pair, et $x_0 mod p$ soit impair.
 - #[Chiffrement : on choisit un $r$ aléatoire, et un sous-ensemble $S$ de ces $x_i$ ($i in [|1, tau|]$), et\
 $E(m) = m + 2r + 2 limits(sum)_(i in S)x_i mod x_0$]
-- Déchiffrement : $D(c) = c mod 2 mod p$  
+- Déchiffrement : $D(c) = c mod 2 mod p$
+
+On peut voir les $2x_i$ comme des chiffrés de 0. En quelque sorte, on a un ensemble de chiffrés de 0 (pas exactement vu qu'on a $r$ et non $2r$ dans la formule).
 
 Remarque : le déchiffrement est le même que pour le schéma basique. Nous l'avons également constaté lors de nos tests, mais ces deux schémas sont "compatibles".
 
