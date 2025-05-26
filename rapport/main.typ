@@ -118,6 +118,27 @@ Le problème du PGCD approché, étant donné des $x_i = q_i p + r_i$ (avec $p$,
 Plus précisément, on se permet un nombre polynomial en $lambda$ (paramètre de sécurité) de $x_i$ où $p$ est de taille $tilde(cal(O))(lambda^2)$, les $q_i$ sont de taille $tilde(cal(O))(lambda^3)$ et les $r_i$ sont de taille $cal(O)(lambda)$.\
 (Où $tilde(cal(O))(lambda^2) = cal(O)(lambda^2log^k lambda)$ pour un certain $k$)\
 
+== Premier schéma basique
+
+Le schéma DGHV basique dont nous avons vu le principe en cours est le suivant :\
+- Choisir $p$ comme clé privée
+- Chiffrement : choisir $q$ et $r$ aléatoires, et $E(b) = q p + r + b$
+- Déchiffrement : $D(c) = c mod 2 mod p$
+Ce schéma permet les additions et les multiplications, mais en quantité limitée, car la taille des chiffrés augmente rapidement.\
+
+== Schéma DGHV
+
+Le schéma DGHV initial permet de créer un chiffré sans avoir à connaître la clé privée. Cela peut sembler inutile, mais on verra une application dans la suite.\
+- La clé privée est toujours la même, $p$
+- Pour générer la clé publique, on va prendre $tau + 1$ échantillons de la forme $x_i = p q_i + r_i$ avec $forall i in [|0, tau|], x_0 >= x_i$ Intuitivement, c'est comme si l'on avait $tau + 1$ chiffrés de 0. Il faut également que $x_0$ soit pair, et $x_0 mod p$ soit impair.
+- #[Chiffrement : on choisit un $r$ aléatoire, et un sous-ensemble $S$ de ces $x_i$ ($i in [|1, tau|]$), et\
+$E(b) = m + 2r + 2 limits(sum)_(i in S)x_i mod x_0$]
+- Déchiffrement : $D(c) = c mod 2 mod p$  
+
+Remarque : le déchiffrement est le même que pour le schéma basique. Nous l'avons également constaté lors de nos tests, mais ces deux schémas sont "compatibles".
+
+À ce stade, on peut déjà effectuer un bootstrapping en ayant un circuit binaire comme abordé en cours, mais l'article conclut qu'un tel circuit est trop profond et génère des chiffrés avec des bruits trop importants.
+
 == Implémentation
 
 On utilise comme expliqué précédemment la bibliothèque GMP pour effectuer les calculs sur des entiers de taille arbitraire.\
@@ -152,11 +173,7 @@ On remarque déjà que l'opération $or$ sera plus aussi coûteuse que le $and$,
 
 - On peut également construire l'opération $not$ à partir de $xor$
 $not a = a xor 1$\
-Cependant, cela implique de pouvoir chiffrer un 1 "à la volée", c'est-à-dire sans disposer de la clé privée. Voyons comment faire cela :
-
-=== Chiffrement à clé publique
-
-
+Cependant, cela implique de pouvoir chiffrer un 1 "à la volée", c'est-à-dire sans disposer de la clé privée. C'est ce que nous avons vu dans la partie précédente.
 
 === Circuits
 
@@ -224,14 +241,21 @@ Nous avons donc proposé ce circuit pour l'opération de compression à égalit�
   columns:2,
   gutter:.5cm,
   figure(
-    image("img/circuit1.png", width: 60%),
+    image("img/circuit1.png", width: 120%),
     caption: "Circuit pour l'opération de compression à égalité blanche",
   ),
-  figure(
+  grid(
+    columns:1,
+    gutter:.5cm,
+    figure(
     image("img/circuitcode.png", width: 58%),
     caption: "Code Python correspondant aux deux circuits",
+    ),
+    [On doit faire attention à ne pas répéter les calculs, c'est pour cela qu'on doit utiliser des variables intermédiaires pour simuler les fils du circuit.]
   )
+  
 )
+
   
 = Chiffrement complètement homomorphe
 
