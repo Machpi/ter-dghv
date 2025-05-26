@@ -1,16 +1,17 @@
 #import "@preview/ilm:1.4.1" : *
 #import "@preview/lovelace:0.3.0" : *
+#import "@preview/circuiteria:0.2.0" : *
 
 #set text(lang: "fr")
 
 #show: ilm.with(
   title: [Rapport de TER :\ Chiffrement Homomorphe],
-  author: "Mathias Loiseau, Jonathan Long, ",
+  author: "Mathias Loiseau, Jonathan Long,\n Tom Noel, Ryan Germain, Aly Elhussieny",
   date: none,
   abstract: [
     Année 2024—2025
   ],
-  bibliography: none,
+  bibliography: bibliography("refs.bib"),
   figure-index: (enabled: true),
   table-index: (enabled: true),
   listing-index: (enabled: true),
@@ -19,7 +20,7 @@
 
 = Sujet
 
-Un schéma de chiffrement complètement homomorphe garantit que pour $n$ clairs $m_1, ..., m_n$, leurs chiffrés respectifs $c_1, ..., c_n$ et une fonction f, $"Decrypt"_("SK")(f(c_1, ..., c_n)) = f(m_1, ..., m_n)$.\
+Un schéma de chiffrement complètement homomorphe garantit que pour $n$ clairs $m_1, ..., m_n$, leurs chiffrés respectifs $c_1, ..., c_n$ et une fonction $f$ :\ $"Decrypt"_("SK")(f(c_1, ..., c_n)) = f(m_1, ..., m_n)$.\
 
 Notre projet consiste en l'étude et en l'implémentation du schéma de chiffrement complètement homomorphe de van Dijk, Gentry, Halevi et Vaikuntanathan (DGHV).\
 Le schéma DGHV est l'extension d'un schéma dit _somewhat homomorphic_ :\
@@ -119,6 +120,11 @@ Plus précisément, on se permet un nombre polynomial en $lambda$ (paramètre de
 == Implémentation
 
 On utilise comme expliqué précédemment la bibliothèque GMP pour effectuer les calculs sur des entiers de taille arbitraire.\
+Cela nécessite d'utiliser le flag _-lgmp_ lors de la compilation pour lier la bibliothèque GMP.\
+
+Il est important de noter que nous utilisons des valeurs très petites comparées à celles recommandées @paramVals pour le schéma DGHV : 
+
+#image("paramVals.png")
 
 
 = Schéma _somewhat homomorphic_ : opérations côté serveur
@@ -150,8 +156,6 @@ et les arêtes sont des entrées et sorties de ces opérations.\
 
 Nous avons implémenté dans le fichier _server.py_ un exemple de serveur
 qui reçoit des images chiffrées et effectue des opérations de base sur ces images.
-
-
 
 = Chiffrement complètement homomorphe
 

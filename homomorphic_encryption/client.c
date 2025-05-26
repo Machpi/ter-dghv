@@ -6,16 +6,16 @@
 #include <sys/random.h>
 #include <time.h>
 
-#define ETA 2048           // η : taille en bits de la clé secrète p
+#define ETA 1024           // η : taille en bits de la clé secrète p
 #define RHO 16             // ρ : taille en bits du bruit r
 #define GAMMA 8192         // γ : taille en bits des xi dans la clé publique
 #define RHOP (RHO + 16)    // ρ' : bruit étendu pour chiffrement
 #define TAU (GAMMA + 128)  // τ : nombre d'éléments xi dans la clé publique
 
-#define KAPPA 128     // κ : précision binaire des y_i
+#define KAPPA 262144  // κ : précision binaire des y_i
 #define THETA 256     // Θ : nombre total de hints y_i
-#define PREC_BITS 11  // Précision en bits des y_i
 #define WEIGHT 32     // θ : poids de Hamming de s[]
+#define PREC_BITS 11  // Précision en bits des y_i
 
 gmp_randstate_t state;
 
@@ -158,7 +158,7 @@ void encrypt(mpz_t c, const mpz_t p, int m) {
   mpz_clears(q, r, tmp, NULL);
 }
 
-void encrypt_public(mpz_t c, mpz_t *pk, int m) {
+void encrypt_public(mpz_t c, const mpz_t *pk, const int m) {
   mpz_t r, sum, tmp;
   mpz_inits(r, sum, tmp, NULL);
   mpz_set_ui(sum, 0);
@@ -188,6 +188,80 @@ void decrypt(mpz_t result, const mpz_t c, const mpz_t p) {
   if (mpz_cmp(mod, half_p) >= 0) mpz_sub(mod, mod, p);
   mpz_mod_ui(result, mod, 2);
   mpz_clears(mod, half_p, NULL);
+}
+
+void encrypt_fhe(mpz_t c_star, mpf_t *z, const mpz_t *pk, const mpf_t *y, int m,
+                 int theta) {
+  // Set sufficient precision for all operations
+  const int total_precision = KAPPA + PREC_BITS + 64;
+  mpf_set_default_prec(total_precision);
+
+  // Initialize variables with proper precision
+  mpf_t tmp, c_star_f, mod_f, fractional_part;
+  mpf_inits(tmp, c_star_f, mod_f, fractional_part, NULL);
+
+  // Encrypt the message m to get c_star
+  encrypt_public(c_star, pk, m);
+
+  for (int i = 0; i < theta; i++) {
+    // Convert c_star to mpf_t
+    mpf_set_z(c_star_f, c_star);
+
+    // Multiply c_star with y[i]
+    mpf_mul(tmp, c_star_f, y[i]);
+
+    // Extract integer part
+    mpz_t integer_part;
+    mpz_init(integer_part);
+    mpz_set_f(integer_part, tmp);  // Truncates toward zero
+
+    // Get exact fractional part
+    mpf_set_z(mod_f, integer_part);
+    mpf_sub(fractional_part, tmp, mod_f);
+
+    // Compute mod 2 of integer part
+    int mod_result = mpz_mod_ui(integer_part, integer_part, 2);
+
+    // Scale fractional part to PREC_BITS precision
+    mpf_mul_2exp(fractional_part, fractional_part, PREC_BITS);
+    mpz_t scaled_frac;
+    mpz_init(scaled_frac);
+    mpz_set_f(scaled_frac, fractional_part);
+
+    // Combine results
+    mpf_set_ui(z[i], mod_result);
+    mpf_set_z(tmp, scaled_frac);
+    mpf_div_2exp(tmp, tmp, PREC_BITS);
+    mpf_add(z[i], z[i], tmp);
+
+    mpz_clears(integer_part, scaled_frac, NULL);
+  }
+  mpf_clears(tmp, c_star_f, mod_f, fractional_part, NULL);
+}
+
+void decrypt_fhe(mpz_t result, const mpz_t c, const mpf_t *z, const int *sk) {
+  mpf_t sum, round;
+  mpf_init(sum);
+  mpf_init_set_d(round, 0.5);
+  mpf_t tmp;
+  mpf_t s;
+  for (int i = 0; i < THETA; i++) {
+    mpf_init(tmp);
+    mpf_init_set_ui(s, sk[i]);
+    mpf_mul(tmp, z[i], s);
+    mpf_add(sum, sum, tmp);
+    mpf_clear(tmp);
+  }
+  mpz_t diff;
+  mpz_init(diff);
+  mpf_add(sum, sum, round);  // Arrondi : + 0.5 |> floor
+  mpz_set_f(diff, sum);
+  mpz_sub(diff, c, diff);       // diff = c - sum
+  mpz_mod_ui(result, diff, 2);  // result = diff mod 2
+
+  mpf_clear(sum);
+  mpf_clear(round);
+  mpz_clear(diff);
 }
 
 void export_secret_key_json(const mpz_t p, const int *s, const char *filename) {
@@ -367,6 +441,18 @@ int main(int argc, char *argv[]) {
     mpz_set_ui(res2, 0);
     encrypt_public(c3, pk, 0);
     encrypt_public(c4, pk, 1);
+
+    // Test FHE
+    mpf_t z[THETA];
+    for (int i = 0; i < THETA; i++) {
+      mpf_init2(z[i], KAPPA + 64);
+    }
+    encrypt_fhe(c3, z, pk, y, 0, THETA);
+    decrypt_fhe(res, c3, z, s);
+    gmp_printf("Déchiffrement FHE : %Zd\n", res);
+    encrypt_fhe(c4, z, pk, y, 1, THETA);
+    decrypt_fhe(res2, c4, z, s);
+    gmp_printf("Déchiffrement FHE : %Zd\n", res2);
 
     mpz_clears(prime, encr, decr, NULL);
   }
