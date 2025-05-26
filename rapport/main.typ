@@ -184,7 +184,7 @@ Cependant, cela implique de pouvoir chiffrer un 1 "à la volée", c'est-à-dire 
 
 === Circuits et calculs
 
-Un circuit est une représentation d'une fonction booleénne sous forme de portes logiques connectées. Nous avons vu en TD que n'importe quelle fonction boolénne\ $f : (ZZ\/2ZZ)^n arrow.long ZZ\/2ZZ$ pouvait s'écrire comme un polynôme en $n$ variables et de degré au plus $n$. Or, il existe une équivalence formelle entr les circuits et les polynômes que nous ne détaillerons pas ici.\
+Un circuit est une représentation d'une fonction booleénne sous forme de portes logiques connectées. Nous avons vu en TD que n'importe quelle fonction boolénne\ $f : (ZZ\/2ZZ)^n arrow.long ZZ\/2ZZ$ pouvait s'écrire comme un polynôme en $n$ variables et de degré au plus $n$. Or, il existe une équivalence formelle entre les circuits et les polynômes que nous ne détaillerons pas ici.\
 Ce qu'il faut retenir, c'est que dans le schéma actuel, les circuits sont en clair, c'est-à-dire que le serveur sait quelles opérations il effectue sur les données chiffrées. Il existe cependant des schémas de chiffrement homomorphe où le serveur n'a pas conscience des opérations qu'il effectue.
 
 == Implémentation : exemple des images
@@ -266,30 +266,39 @@ Nous avons donc proposé ce circuit pour l'opération de compression à égalit�
   
 = Chiffrement complètement homomorphe
 
-Le schéma DGHV construit un schéma de chiffrement complètement homomorphe à partir du schéma initial _somewhat homomorphic_ en ajoutant une étape de bootstrapping
+L'article construit un schéma de chiffrement complètement homomorphe à partir du schéma initial _somewhat homomorphic_ en ajoutant une étape de bootstrapping
 
 #let sk = $"sk"$
 #let pk = $"pk"$
 
-== Déchiffrement par approximation
+== Déchiffrement par approximation contrôlée
 
-On a 3 paramètres : $kappa, theta, Theta$ qui sont des paramètres de sécurité. $kappa = (gamma*eta)/(rho')$, taille de la clé secrète, $theta = lambda$ nombre d'éléments des ensembles, $Theta = omega(kappa*log lambda)$ nombre d'indice dans la clé privée.
+On souhaite toujours obtenir un bootstrapping en chiffrant un circuit, mais ce circuit doit être plus simple que celui que l'on a vu précédemment.\
 
-On ajoute un vecteur y de $Theta$ valeurs à la clé publique dont les valeurs sont des réels compris entre 0 et 2 exclu avec une précision de $kappa$ bits après la virgule tel qu'il existe un sous-ensemble $S subset {1,...,Θ}$ de taille $theta$ tel que $sum_(i in S) y_i approx 1/p (mod 2).$
+On ajoute 3 paramètres :\
+$kappa = (gamma*eta)/(rho')$, $theta = lambda$, et $Theta = omega(kappa*log lambda)$.
 
 === Génération de clé
-On veut simplifier le schéma de déchiffrement en une opération plus simple, on veut une somme pondérée.
-Pour cela, on génère une clé secrète $sk^* = p$, et une clé publique $pk^*$. $x_p = floor.l 2^κ/p ceil.r$, on choisit aléatoirement un vecteur $arrow(s)$ de $Theta$ bits avec un poids de Hamming de $theta$ (nombre de 1), le vecteur de la clé secrète $arrow(s) = {s_1, …, s_Theta}, S = {i : s_i = 1}$, cela indique les $y_i$ à 1.
+On génère dans un premier temps une clé privée $sk^*$ et une clé publique $pk^*$ comme vu précédemment.\
 
-On choisit aléatoirement des entiers $u_i in Z inter [theta, 2^(kappa+1))$, avec $i = 1, …, Theta$, tel que la $sum_(i in S) u_i = x_p (mod 2^(kappa+1)), y_i = u_i/2^k$ et le vecteur $arrow(y) = {y_1, …, y_Theta}$ chaque $y_i$ est un nombre positif inférieur à 2 avec une précision de $kappa$ bits après la virgule. 
+Pour générer notre nouvelle clé privée, on va générer aléatoirement un vecteur de taille $Theta$ de bits, dont seulement $theta$ bits sont à 1. On appelle ce vecteur $arrow(s)$.\
 
-Le vecteur $arrow(y)$ permet de simplifier la division en faisant une somme. Et la $[sum_(i in S) y_i]_2 = (1/p) - |delta_p|$ tel que $| delta_p < 2^(-kappa)|$. La sortie est la clé secrète = $arrow(s)$ et la clé publique pk = $(pk^*, arrow(y))$. Cela permet d'approximer la division $(c^*)/p$ avec une faible erreur.
+On va ensuite calculer un vecteur $arrow(y)$ de $Theta$ valeurs à la clé publique où $forall i in [|1, Theta|], y_i in [0,2[$ avec une précision de $kappa$ bits après la virgule tel qu'il existe un sous-ensemble $S subset {1,...,Θ}$ de taille $theta$ tel que $limits(sum)_(i in S) y_i = limits(sum)_(i=1)^Theta s_i y_i approx 1/p (mod 2)$.\
+(Plus précisément, on est à $2^(-kappa)$ près de $1/p$)
+
+Nos nouvelles clés sont :
+- Clé privée : $arrow(s)$
+- Clé publique : $(pk^*, arrow(y))$
+
+On remarque déjà que le nombre premier $p$ n'apparait plus explicitement dans les clés. Il n'est présent qu'implicitement dans le vecteur $arrow(y)$. Intuitivement, on a réduit la taille de la clé pour simplifier le circuit de déchiffrement que l'on utilise dans le bootstrapping.
 
 === Déchiffrement 
-On simplifie la division par une somme pondérée des $z_i$, on utilise le vecteur $arrow(s)$ pour ne combiner que les bons $z_i$ et on retrouve le message $m = [c^* - floor.l sum_i s_i * z_i ceil.r]_2$. Cela fonctionne sous 2 conditions, il faut que le résultat de la $sum(s_i*z_i)$ soit 1/4 d'un nombre entier et seulement $theta$ bits des $s_1, …, s_Theta$ ne soit pas des 0.  
+On simplifie la division par une somme pondérée des $z_i$, on utilise la clé secrète $arrow(s)$ pour ne combiner que les bons $z_i$ et on retrouve le message $m = [c^* - floor.l sum_i s_i * z_i ceil.r]_2$.\
+L'article démontre que pour des bonnes valeurs de $kappa, theta, "et" Theta$, la différence entre la valeur réelle et la valeur déchiffrée avant l'arrondi est inférieure à $1/4$, ce qui assure la validité du message déchiffré.\
 
 == Bootstrapping
-
+Nous n'avons pas pu implémenter le bootstrapping pour le schéma DHGV.\
+Dans les grandes lignes, l'article démontre qu'il est possible de décomposer l'opération de déchiffrement $m = c^* - floor.l sum s_i z_i ceil.r mod 2$ en trois sous-circuits qui peuvent être exprimés comme des polynômes pouvant être évalués homomorphiquement par le schéma, à condition que les paramètres soient choisis de façon à ce que leur degré et leur taille restent dans les bornes supportées par le bruit maximal autorisé.
 
 = Conclusion
 
