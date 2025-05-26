@@ -69,6 +69,13 @@ def compress_black(a,b,c,d):
     or2 = or_h(pre2*a, pre2*b)
     return or_h(or1, or2) 
 
+# In theory, should keep the same bit, but we have no bootstrap
+def destroy_bit(a):
+    x = a
+    for _ in range(53):
+        x = x * a
+    return x
+
 def compress_function(img):
     new_img = [[str(0) for _ in range(16)] for _ in range(16)]
     for i in range(8):
@@ -161,16 +168,23 @@ def compress_black_image(image_filename):
     with open(output_filename, "w") as f:
         for row in compressed_image:
             f.write("\n".join(row) + "\n")
-    
+            
+def destroy_image(image_filename):
+    image = load_encrypted_image(image_filename)
+    inverted_image = [str(destroy_bit(int(image[i][j]))) for i in range(16) for j in range(16)]
+    output_filename = image_filename.replace(".enc", "_destroy.enc")
+    with open(output_filename, "w") as f:
+        f.write("\n".join(inverted_image))
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python3 server.py <invert | compress | compress_black | add | xor | multiply> <img1> [img2]")
+        print("Usage: python3 server.py <invert | compress | compress_black | destroy | add | xor | multiply> <img1> [img2]")
         sys.exit(1)
 
     action = sys.argv[1]
-    if action not in ["invert", "compress", "compress_black", "add", "xor", "multiply"]:
-        print("Usage: python3 server.py <invert | compress | compress_black | add | xor | multiply> <img1> [img2]")
+    if action not in ["invert", "compress", "compress_black", "destroy", "add", "xor", "multiply"]:
+        print("Usage: python3 server.py <invert | compress | compress_black | destroy | add | xor | multiply> <img1> [img2]")
         sys.exit(1)
     img1 = sys.argv[2]
     img2 = None
@@ -182,6 +196,8 @@ if __name__ == "__main__":
         compress_image(img1)
     if action == "compress_black":
         compress_black_image(img1)
+    if action == "destroy":
+        destroy_image(img1)
     if action == "add":
         add_images(img1, img2)
     elif action == "xor":

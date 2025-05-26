@@ -38,7 +38,7 @@ def handle_keys():
 def get_result_name(action):
   name1 = IMAGE1
   name2 = IMAGE2
-  if action in ["invert", "compress", "compress_black"]:
+  if action in ["invert", "compress", "compress_black", "destroy"]:
     return f"{name1}_{action}.enc"
   else :
     return f"{name1}+{name2}_{action}.enc"
@@ -69,7 +69,8 @@ if __name__ == "__main__":
     ["xor", encrypted_img1, encrypted_img2],
     ["multiply", encrypted_img1, encrypted_img2],
     ["compress", encrypted_img1],
-    ["compress_black", encrypted_img1]
+    ["compress_black", encrypted_img1],
+    # ["destroy", encrypted_img1]
   ]
   
   # Show base images
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     print(f"Transformation : {action} sur {args}")
     run_command(["python3", SERVER_PATH, action] + args)
     result_name = get_result_name(action)
-    print(f"Déchiffrement de {result_name}...")
+    print(f"Déchiffrement de {result_name}...\n")
     run_command(["python3", IMAGE_PATH, "decrypt", result_name])
     decrypted_image = result_name.replace(".enc", ".dec")
     run_command(["python3", DISPLAY_PATH, decrypted_image])

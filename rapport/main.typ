@@ -118,6 +118,11 @@ Le problème du PGCD approché, étant donné des $x_i = q_i p + r_i$ (avec $p$,
 Plus précisément, on se permet un nombre polynomial en $lambda$ (paramètre de sécurité) de $x_i$ où $p$ est de taille $tilde(cal(O))(lambda^2)$, les $q_i$ sont de taille $tilde(cal(O))(lambda^3)$ et les $r_i$ sont de taille $cal(O)(lambda)$.\
 (Où $tilde(cal(O))(lambda^2) = cal(O)(lambda^2log^k lambda)$ pour un certain $k$)\
 
+Le problème que l'on va rencontrer est la taille des chiffrés, qui augmente rapidement avec le nombre d'opérations effectuées :\
+- L'addition de deux chiffrés de taille $n$ donne un chiffré de taille $n + 1$
+- La multiplication de deux chiffrés de taille $n$ donne un chiffré de taille $2n + 1$\
+On va donc vouloir faire une opération dite _bootstrapping_, qui consiste à "ré-évaluer" un chiffré pour réinitialiser son bruit, afin de pouvoir répéter des opérations.
+
 == Premier schéma basique
 
 Le schéma DGHV basique dont nous avons vu le principe en cours est le suivant :\
@@ -138,6 +143,8 @@ $E(b) = m + 2r + 2 limits(sum)_(i in S)x_i mod x_0$]
 Remarque : le déchiffrement est le même que pour le schéma basique. Nous l'avons également constaté lors de nos tests, mais ces deux schémas sont "compatibles".
 
 À ce stade, on peut déjà effectuer un bootstrapping en ayant un circuit binaire comme abordé en cours, mais l'article conclut qu'un tel circuit est trop profond et génère des chiffrés avec des bruits trop importants.
+
+Expérimentalement, nous avons constaté qu'au bout de 52 opérations $and$ ou $or$, le bruit était trop important pour pouvoir déchiffrer.
 
 == Implémentation
 

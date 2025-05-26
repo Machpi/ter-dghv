@@ -2,6 +2,8 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 
+sys.set_int_max_str_digits(10**6)
+
 # Reads a 16x16 file and converts it to a binary matrix
 def lire_fichier_binaire(chemin_fichier):
     matrice = []
