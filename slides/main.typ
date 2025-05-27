@@ -10,16 +10,11 @@
 
 // The front slide is the first slide of your presentation
 #front-slide(
-  title: "This is a sample presentation",
+  title: "Étude du schéma DGHV",
   subtitle: [Année 2024-2025],
   authors: "Mathias Loiseau, Jonathan Long,\n Tom Noel, Ryan Germain, Aly Elhussieny",
   info: [#link("https://github.com/manjavacas/typslides")],
 )
-
-// Title slides create new sections
-#title-slide[
-  Sujet
-]
 
 #title-slide[
   BigInt
@@ -55,7 +50,7 @@
 #slide(title: "Premier Schéma DGHV", outlined: true)[
   Introduction d'une clé publique :
   - Prendre $tau+1$ échantillons $x_i = p q_i + r_i$
-  - Garder $x_0 >= x_i forall x_i, x_0 "pair", x_0 mod p "impair"$
+  - Garder $x_0 >= x_i forall x_i, x_0 "pair", x_0 mod p "impair"$ sinon réessayer
   - Pour chiffrer un bit $b$, on choisit des $x_i in [|x_1, ..., x_Theta|]$ et $E(b) = b + 2r + 2 sum x_i mod x_0$
   - Le déchiffrement reste le même
   Première étape vers un schéma complètement homomorphe : chiffrement sans clé privée.
@@ -79,23 +74,35 @@
   - Puis $not a = a xor 1$
 ]
 
-#slide(title : "Exemple sur des tableaux de 256 chiffrés")[
-  Le chiffrement se fait sur des bits seuls, mais on peut en chiffrer plusieurs et les faire interagir.
+// #slide(title : "Exemple sur des tableaux de 256 chiffrés", outlined: true)[
+//   Le chiffrement se fait sur des bits seuls, mais on peut en chiffrer plusieurs et les faire interagir.
+//   #cols(columns: (2fr, 2fr), gutter: 2em)[
+//     #align(center)[
+//       #image("img/squaremix.png", width:70%)
+//       Tableau de 256 bits affiché en 16×16
+//     ]
+//   ][
+//     #align(center)[
+//       #image("img/squaremixcompress.png", width:70%)
+//       Même tableau, après la fonction _compress_
+//     ]
+//   ]
+// ]
+
+#slide(title : "Exemple sur des tableaux de 256 chiffrés", outlined: true)[
   #cols(columns: (2fr, 2fr), gutter: 2em)[
     #align(center)[
-      #image("img/squaremix.png", width:70%)
-      Tableau de 256 bits affiché en 16×16
+      #image("img/Figure_1.png", width:100%)
     ]
   ][
     #align(center)[
-      #image("img/squaremixcompress.png", width:70%)
-      Même tableau, après la fonction _compress_
+      #image("img/Figure_2.png", width:100%)
     ]
   ]
 ]
 
 #title-slide[
-  Schéma _fully homomorphic_
+  Schéma complètement homomorphe
 ]
 
 #let sk = $"sk"$
@@ -117,6 +124,25 @@
     - Simplifier la fonction de déchiffrement
 ]
 
-#slide(title: "Schéma _fully homomorphic_ DGHV", outlined: true)[
+#slide(title: "Schéma complètement homomorphe DGHV : génération des clés", outlined: true)[
   - On génère une clé publique $pk^*$ et une clé privée $sk^*$ comme précédemment
+  - On génère deux nouveaux vecteurs :
+    - $arrow(x)$ de taille $Theta$ contenant $theta$ 1, le reste étant des 0
+    - $arrow(y)$ de taille $Theta$ tq $limits(sum)_(i=1)^Theta s_i y_i approx 1/p mod 2$
+  - La nouvelle clé privée est $arrow(s)$ et la clé privée est $(sk^*, arrow(y))$
+]
+
+#slide(title: "Schéma complètement homomorphe DGHV : chiffrement et déchiffrement", outlined: true)[
+  - #underline[Chiffrement] :
+    - On génère un chiffré par clé publique $c^*$ comme précédemment
+    - En plus, on génère un vecteur $arrow(z)$ avec $z_i = c^* dot y_i in [0,2[$ avec une précision déterminée
+  - #underline[Déchiffrement] :
+    - $m = c^* - floor.l sum_i s_i z_i ceil.r mod 2$ 
+]
+
+#slide(title: "C'est la dernière slide", outlined:true)[
+  #[
+    #set text(40pt)
+    #align(center, "Merci pour votre attention !")
+  ]
 ]

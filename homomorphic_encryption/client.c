@@ -6,7 +6,7 @@
 #include <sys/random.h>
 #include <time.h>
 
-#define ETA 1024           // η : taille en bits de la clé secrète p
+#define ETA 512           // η : taille en bits de la clé secrète p
 #define RHO 16             // ρ : taille en bits du bruit r
 #define GAMMA 8192         // γ : taille en bits du bruit q
 #define RHOP (RHO + 16)    // ρ' : bruit étendu pour chiffrement

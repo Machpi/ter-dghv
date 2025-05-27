@@ -24,7 +24,7 @@ def run_command(command):
     sys.exit(1)
     
 def generate_keys():
-  print("Génération des clés...")
+  print("Génération des clés")
   command = [CLIENT_PATH, "key"]
   run_command(command)
     
@@ -70,13 +70,13 @@ if __name__ == "__main__":
     ["multiply", encrypted_img1, encrypted_img2],
     ["compress", encrypted_img1],
     ["compress_black", encrypted_img1],
-    # ["destroy", encrypted_img1]
+    ["destroy", encrypted_img1]
   ]
   
   # Show base images
-  print("Affichage des images de base...")
-  run_command(["python3", DISPLAY_PATH, os.path.join(IMAGE_DIR, IMAGE1)])
-  run_command(["python3", DISPLAY_PATH, os.path.join(IMAGE_DIR, IMAGE2)])
+  # print("Affichage des images de base")
+  # run_command(["python3", DISPLAY_PATH, os.path.join(IMAGE_DIR, IMAGE1)])
+  # run_command(["python3", DISPLAY_PATH, os.path.join(IMAGE_DIR, IMAGE2)])
   
   for transform in transformations:
     action = transform[0]
@@ -84,18 +84,17 @@ if __name__ == "__main__":
     print(f"Transformation : {action} sur {args}")
     run_command(["python3", SERVER_PATH, action] + args)
     result_name = get_result_name(action)
-    print(f"Déchiffrement de {result_name}...\n")
+    print(f"Déchiffrement de {result_name}\n")
     run_command(["python3", IMAGE_PATH, "decrypt", result_name])
     decrypted_image = result_name.replace(".enc", ".dec")
     run_command(["python3", DISPLAY_PATH, decrypted_image])
     
   # Clean up
-  print("Nettoyage des fichiers")
+  print("Suppression des fichiers")
   extensions = (".enc", ".dec", ".json")
   for filename in os.listdir('.'):
       if filename.endswith(extensions):
           try:
               os.remove(filename)
-              print(f"Supprimé : {filename}")
           except Exception as e:
               print(f"Erreur lors de la suppression de {filename} : {e}")

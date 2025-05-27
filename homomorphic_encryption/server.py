@@ -72,7 +72,7 @@ def compress_black(a,b,c,d):
 # In theory, should keep the same bit, but we have no bootstrap
 def destroy_bit(a):
     x = a
-    for _ in range(53):
+    for _ in range(25):
         x = x * a
     return x
 
