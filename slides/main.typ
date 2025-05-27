@@ -65,7 +65,58 @@
   Schéma _somewhat homomorphic_ : serveur
 ]
 
+#slide(title:"Que fait le serveur ?", outlined: true)[
+  - Manipule uniquement des chiffrés $E(b)$
+  - Additionne des chiffrés : $D(E(a)+E(b)) = a xor b$
+  - Multiplie des chiffrés : $D(E(a) times E(b)) = a and b$
+]
+
+#slide(title: "Que peut-on en faire ?", outlined: true)[
+  $->$ Tout.\
+  Plus précisément, tout circuit booléen peut être évalué.
+
+  - Déjà, $a or b = a xor b xor (a and b)$
+  - Puis $not a = a xor 1$
+]
+
+#slide(title : "Exemple sur des tableaux de 256 chiffrés")[
+  Le chiffrement se fait sur des bits seuls, mais on peut en chiffrer plusieurs et les faire interagir.
+  #cols(columns: (2fr, 2fr), gutter: 2em)[
+    #align(center)[
+      #image("img/squaremix.png", width:70%)
+      Tableau de 256 bits affiché en 16×16
+    ]
+  ][
+    #align(center)[
+      #image("img/squaremixcompress.png", width:70%)
+      Même tableau, après la fonction _compress_
+    ]
+  ]
+]
+
 #title-slide[
   Schéma _fully homomorphic_
 ]
 
+#let sk = $"sk"$
+#let pk = $"pk"$
+
+#slide(title: "Principe du bootstrapping", outlined: true)[
+  - Soit $f : sk -> D_sk (c)$
+  - Alors on peut construire un circuit $cal(C)$ tel que $D_sk (c) = cal(C)(c)$
+  - Les bits de la clé sont les entrées du circuit
+  - On chiffre ces entrées et on évalue $cal(C)$ homomorphiquement
+  - Et on obtient $E(D_sk (c))$ = c'
+  - $D_sk (c') = D_sk (c)$
+]
+
+#slide(title: "Que changer ?")[
+  - Idée : simplifier le déchiffrement pour que le circuit correspondant
+  - Solutions : 
+    - Diminuer la taille de la clé privée
+    - Simplifier la fonction de déchiffrement
+]
+
+#slide(title: "Schéma _fully homomorphic_ DGHV", outlined: true)[
+  - On génère une clé publique $pk^*$ et une clé privée $sk^*$ comme précédemment
+]
