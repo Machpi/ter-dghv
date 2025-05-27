@@ -2,7 +2,7 @@
 
 Lors de ce projet, nous avons étudié le schéma [DGHV](https://link.springer.com/chapter/10.1007/978-3-642-13190-5_2)
 
-## Dossiers
+## Dossiers
 
 bigInt : Petite bibliothèque de calculs sur des entiers de taille arbitraire
 
